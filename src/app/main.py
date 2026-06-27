@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.controllers.health_controller import router as health_router
+from app.controllers.managements_controller import router as managements_router
+from app.controllers.transactions_controller import router as transactions_router
 from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.core.logging import setup_logging
@@ -53,3 +55,5 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
 
 
 app.include_router(health_router)
+app.include_router(managements_router)
+app.include_router(transactions_router)
