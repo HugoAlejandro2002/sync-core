@@ -16,11 +16,14 @@ ENV UV_COMPILE_BYTECODE=1 \
 COPY pyproject.toml uv.lock ./
 RUN uv sync --no-dev --no-install-project
 
-# Copy project source and install as a wheel
+# Copy project source and install as a non-editable wheel.
+# uv sync installs the project in editable mode by default, which creates a .pth
+# file pointing to /app/src — that path won't exist in the runner, so we force a
+# non-editable install here.
 COPY src ./src
 COPY migrations ./migrations
 COPY alembic.ini .
-RUN uv sync --no-dev
+RUN uv sync --no-dev && uv pip install --force-reinstall --no-deps /app
 
 # ── runner stage ──────────────────────────────────────────────────────────────
 FROM python:3.12-slim-bookworm AS runner
@@ -37,7 +40,6 @@ RUN groupadd --system --gid 1001 app && \
     chown -R app:app /app
 
 COPY --from=builder --chown=app:app /app/.venv ./.venv
-COPY --from=builder --chown=app:app /app/src ./src
 COPY --from=builder --chown=app:app /app/migrations ./migrations
 COPY --from=builder --chown=app:app /app/alembic.ini .
 
