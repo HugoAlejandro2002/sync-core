@@ -18,6 +18,24 @@ services:
       timeout: 5s
       retries: 15
 
+  migrate:
+    build: .
+    container_name: caja_inteligente_migrate
+    restart: "no"
+    environment:
+      DATABASE_URL: "mysql+asyncmy://root:password@mysql:3306/caja_inteligente"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-replace-me}"
+      GEMINI_MODEL: "${GEMINI_MODEL:-gemini-2.0-flash}"
+      LOCAL_MEDIA_DIR: "/app/storage/media"
+      APP_ENV: "production"
+      APP_DEBUG: "false"
+    volumes:
+      - caja_media_data:/app/storage/media
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+
   web:
     build: .
     container_name: caja_inteligente_api
@@ -34,8 +52,8 @@ services:
     volumes:
       - caja_media_data:/app/storage/media
     depends_on:
-      mysql:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   caja_mysql_data:
