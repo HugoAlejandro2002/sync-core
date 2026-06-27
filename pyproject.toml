@@ -45,3 +45,8 @@ select = ["E", "F", "I", "N", "W", "UP"]
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies = [
+    "aiosqlite>=0.22.1",
+]

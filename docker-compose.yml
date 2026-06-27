@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: caja_inteligente_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: caja_inteligente
+    # Host port is configurable (MYSQL_HOST_PORT) to avoid clashing with a local MySQL.
+    ports:
+      - "${MYSQL_HOST_PORT:-3306}:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - caja_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  caja_mysql_data:
