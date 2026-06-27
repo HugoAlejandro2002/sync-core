@@ -6,13 +6,10 @@ frontend never has to guess translations.
 
 from app.domain.enums import (
     AlertLevel,
-    DocumentaryEvidenceLevel,
     DocumentType,
     ManagementStatus,
     MediaAssetStatus,
     PaymentMethod,
-    RiskLevel,
-    SalesFrequency,
     TransactionSourceType,
     TransactionStatus,
     TransactionType,

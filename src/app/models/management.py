@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.enums import ManagementStatus
 from app.domain.money import zero_money
-from app.models.base import MONEY_TYPE, UUID_TYPE, Base, CONFIDENCE_TYPE, TimestampMixin, new_uuid
+from app.models.base import CONFIDENCE_TYPE, MONEY_TYPE, UUID_TYPE, Base, TimestampMixin, new_uuid
 
 if TYPE_CHECKING:
     from app.models.customer import Customer
@@ -21,9 +21,7 @@ class Management(TimestampMixin, Base):
     __tablename__ = "managements"
 
     id: Mapped[str] = mapped_column(UUID_TYPE, primary_key=True, default=new_uuid)
-    customer_id: Mapped[str] = mapped_column(
-        UUID_TYPE, ForeignKey("customers.id"), nullable=False
-    )
+    customer_id: Mapped[str] = mapped_column(UUID_TYPE, ForeignKey("customers.id"), nullable=False)
 
     application_code: Mapped[str] = mapped_column(String(40), nullable=False)
 

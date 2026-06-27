@@ -28,9 +28,7 @@ class MediaAsset(TimestampMixin, Base):
     management_id: Mapped[str] = mapped_column(
         UUID_TYPE, ForeignKey("managements.id"), nullable=False
     )
-    customer_id: Mapped[str] = mapped_column(
-        UUID_TYPE, ForeignKey("customers.id"), nullable=False
-    )
+    customer_id: Mapped[str] = mapped_column(UUID_TYPE, ForeignKey("customers.id"), nullable=False)
 
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(80), nullable=False)

@@ -28,9 +28,7 @@ class Transaction(TimestampMixin, Base):
     management_id: Mapped[str] = mapped_column(
         UUID_TYPE, ForeignKey("managements.id"), nullable=False
     )
-    customer_id: Mapped[str] = mapped_column(
-        UUID_TYPE, ForeignKey("customers.id"), nullable=False
-    )
+    customer_id: Mapped[str] = mapped_column(UUID_TYPE, ForeignKey("customers.id"), nullable=False)
     media_asset_id: Mapped[str | None] = mapped_column(
         UUID_TYPE, ForeignKey("media_assets.id"), nullable=True
     )

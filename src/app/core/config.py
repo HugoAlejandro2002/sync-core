@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
