@@ -1,10 +1,11 @@
 from datetime import date
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
+from app.domain.uploads import UploadedFile
 from app.schemas.management_schema import (
     AdvisorNotesResponse,
     AdvisorNotesUpdate,
@@ -14,9 +15,23 @@ from app.schemas.management_schema import (
     StatusResponse,
     StatusUpdate,
 )
+from app.services.evidence_processing_service import EvidenceProcessingService
 from app.services.management_service import ManagementService
 
 router = APIRouter(prefix="/api/v1/managements", tags=["managements"])
+
+
+async def _to_uploaded_files(files: list[UploadFile]) -> list[UploadedFile]:
+    uploaded: list[UploadedFile] = []
+    for file in files:
+        uploaded.append(
+            UploadedFile(
+                filename=file.filename or "evidencia",
+                content_type=file.content_type or "application/octet-stream",
+                content=await file.read(),
+            )
+        )
+    return uploaded
 
 
 @router.post("", response_model=ManagementDetail, status_code=201)
@@ -32,6 +47,7 @@ async def create_management(
     currency: str = Form("BOB"),
     visit_date: date | None = Form(None),
     advisor_notes: str | None = Form(None),
+    files: list[UploadFile] = File(default=[]),
     session: AsyncSession = Depends(get_session),
 ) -> ManagementDetail:
     data = ManagementCreateInput(
@@ -47,7 +63,8 @@ async def create_management(
         visit_date=visit_date,
         advisor_notes=advisor_notes,
     )
-    return await ManagementService(session).create_management(data)
+    uploaded = await _to_uploaded_files(files)
+    return await ManagementService(session).create_management(data, uploaded)
 
 
 @router.get("", response_model=ManagementListResponse)
@@ -64,6 +81,18 @@ async def get_management(
     session: AsyncSession = Depends(get_session),
 ) -> ManagementDetail:
     return await ManagementService(session).get_management_detail(management_id)
+
+
+@router.post("/{management_id}/evidence", response_model=ManagementDetail)
+async def add_evidence(
+    management_id: str,
+    files: list[UploadFile] = File(...),
+    session: AsyncSession = Depends(get_session),
+) -> ManagementDetail:
+    uploaded = await _to_uploaded_files(files)
+    return await EvidenceProcessingService.from_session(session).add_evidence_to_management(
+        management_id, uploaded
+    )
 
 
 @router.patch("/{management_id}/advisor-notes", response_model=AdvisorNotesResponse)

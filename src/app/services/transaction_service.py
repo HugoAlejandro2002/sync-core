@@ -15,7 +15,7 @@ from app.schemas.transaction_schema import (
     TransactionMutationResponse,
     TransactionUpdate,
 )
-from app.services.management_service import recalculate_management
+from app.services.recalculation import recalculate_management
 from app.services.response_builder import (
     build_financial_summary_short,
     build_transaction_response,
