@@ -103,7 +103,7 @@ def build_transaction_response(tx: Transaction) -> TransactionResponse:
 def _analysis_label(management: Management, key: str) -> str:
     analysis = management.analysis_summary or {}
     node = analysis.get(key) or {}
-    return node.get("label", UNKNOWN_LABEL)
+    return str(node.get("label", UNKNOWN_LABEL))
 
 
 def build_financial_summary(management: Management) -> FinancialSummary:

@@ -9,6 +9,11 @@ from sqlalchemy.orm import selectinload
 
 from app.models.management import Management
 
+# Module-level aliases: the `list` method on the repository shadows the builtin
+# `list` inside the class body, so annotations use these instead.
+JsonDict = dict[str, Any]
+JsonList = list[JsonDict]
+
 
 class ManagementRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -77,8 +82,8 @@ class ManagementRepository:
         self,
         management: Management,
         *,
-        analysis_summary: dict[str, Any] | None,
-        alerts: list[dict[str, Any]] | None,
+        analysis_summary: JsonDict | None,
+        alerts: JsonList | None,
     ) -> None:
         management.analysis_summary = analysis_summary
         management.alerts = alerts
