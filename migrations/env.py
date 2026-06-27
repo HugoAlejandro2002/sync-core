@@ -14,7 +14,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Inject the real database URL from application settings.
-config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL)
+config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL.replace("%","%%"))
 
 target_metadata = Base.metadata
 
