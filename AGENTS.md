@@ -1153,12 +1153,16 @@ Response shape:
   "alerts": [
     {
       "level": "warning",
-      "message": "El recibo de compra de mercadería tiene baja confianza de lectura (72%). Verificar documento original."
+      "message": "El recibo de compra de mercadería tiene baja confianza de lectura (72%). Verificar documento original.",
+      "evidence_id": "uuid"
     }
   ],
   "advisor_notes": null
 }
 ```
+
+`evidence_id` is the media asset the alert refers to (the frontend shows it on that
+evidence's card), or `null` for management-level alerts not tied to a single evidence.
 
 ---
 
@@ -1520,9 +1524,14 @@ Alert shape:
 ```json
 {
   "level": "warning",
-  "message": "El recibo de compra de mercadería tiene baja confianza de lectura (72%). Verificar documento original."
+  "message": "El recibo de compra de mercadería tiene baja confianza de lectura (72%). Verificar documento original.",
+  "evidence_id": "uuid"
 }
 ```
+
+`evidence_id` is the related media asset id when the alert is about a specific evidence
+(failed/low-confidence media, Gemini warnings) or the evidence behind a flagged transaction;
+it is `null` for management-level alerts (e.g. evidence processed but no transactions found).
 
 Allowed alert levels:
 
