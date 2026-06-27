@@ -56,6 +56,9 @@ def build_customer_mini(customer: Customer) -> CustomerMini:
         full_name=customer.full_name,
         phone_number=customer.phone_number,
         business_name=customer.business_name,
+        business_type=customer.business_type,
+        nit=customer.nit,
+        market_location=customer.market_location,
     )
 
 
