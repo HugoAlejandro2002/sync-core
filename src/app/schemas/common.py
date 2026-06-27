@@ -22,6 +22,8 @@ class Alert(BaseModel):
     level: str
     message: str
     level_label: str | None = None
+    # Media asset (evidence) this alert refers to, or null for management-level alerts.
+    evidence_id: str | None = None
 
 
 class FinancialSummary(BaseModel):

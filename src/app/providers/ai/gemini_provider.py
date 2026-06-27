@@ -55,7 +55,7 @@ class GeminiFinancialExtractionProvider:
 
         schema_json = json.dumps(FinancialExtractionSchema.model_json_schema(), ensure_ascii=False)
         prompt = (
-            f"{BASE_PROMPT}\n\nDevuelve únicamente JSON válido que cumpla este JSON Schema:\n"
+            f"{BASE_PROMPT}\n\nDevuelve únicamente JSON válido que cumpla este JSON Schema y toda el texto exclusivamente en español:\n"
             f"{schema_json}"
         )
         contents = [prompt, types.Part.from_bytes(data=image_bytes, mime_type=mime_type)]

@@ -37,8 +37,13 @@ def _labeled(value: str) -> dict[str, str]:
     return {"value": value, "label": level_label(value)}
 
 
-def _alert(level: AlertLevel, message: str) -> dict[str, Any]:
-    return {"level": level.value, "message": message, "level_label": ALERT_LEVEL_LABELS[level]}
+def _alert(level: AlertLevel, message: str, evidence_id: str | None = None) -> dict[str, Any]:
+    return {
+        "level": level.value,
+        "message": message,
+        "level_label": ALERT_LEVEL_LABELS[level],
+        "evidence_id": evidence_id,
+    }
 
 
 class SummaryService:
@@ -165,6 +170,7 @@ class SummaryService:
                         AlertLevel.WARNING,
                         f"La evidencia «{media.original_filename}» no se pudo procesar. "
                         "Verificar el archivo original.",
+                        evidence_id=media.id,
                     )
                 )
                 continue
@@ -175,11 +181,12 @@ class SummaryService:
                         AlertLevel.WARNING,
                         f"La evidencia «{media.original_filename}» tiene baja confianza de "
                         f"lectura ({pct}%). Verificar documento original.",
+                        evidence_id=media.id,
                     )
                 )
             raw = media.ai_raw_response or {}
             for warning in raw.get("warnings", []) or []:
-                alerts.append(_alert(AlertLevel.WARNING, str(warning)))
+                alerts.append(_alert(AlertLevel.WARNING, str(warning), evidence_id=media.id))
 
         for tx in active:
             if tx.confidence_score is not None and tx.confidence_score < LOW_CONFIDENCE:
@@ -189,6 +196,7 @@ class SummaryService:
                     _alert(
                         AlertLevel.WARNING,
                         f"La transacción «{desc}» tiene baja confianza ({pct}%).",
+                        evidence_id=tx.media_asset_id,
                     )
                 )
             if tx.transaction_type == TransactionType.UNKNOWN.value:
@@ -197,6 +205,7 @@ class SummaryService:
                     _alert(
                         AlertLevel.WARNING,
                         f"La transacción «{desc}» no pudo clasificarse como ingreso o gasto.",
+                        evidence_id=tx.media_asset_id,
                     )
                 )
 

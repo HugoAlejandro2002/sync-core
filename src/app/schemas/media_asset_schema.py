@@ -11,3 +11,5 @@ class EvidenceResponse(BaseModel):
     detected_amount: str | None = None
     confidence_score: float | None = None
     extracted_text: str | None = None
+    # Model/SDK feedback when status is "failed"; null otherwise.
+    error_message: str | None = None

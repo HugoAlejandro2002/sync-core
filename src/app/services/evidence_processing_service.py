@@ -5,7 +5,7 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import AppError, NotFoundError, ValidationError
 from app.domain.enums import MediaAssetStatus, TransactionSourceType, TransactionStatus
 from app.domain.labels import document_type_label
 from app.domain.money import to_money
@@ -35,6 +35,19 @@ def _to_confidence(value: float | None) -> Decimal | None:
     if value is None:
         return None
     return Decimal(str(value)).quantize(Decimal("0.0001"))
+
+
+def _failure_reason(exc: Exception) -> str:
+    """Readable detail for a failed evidence, shown to the advisor.
+
+    Our AppError subclasses don't forward their message to Exception, so ``str(exc)``
+    is empty for them — the real cause (e.g. the Gemini/SDK error) lives in
+    ``details['reason']``. Combine the Spanish message with that reason when present.
+    """
+    if isinstance(exc, AppError):
+        reason = exc.details.get("reason")
+        return f"{exc.message} {reason}".strip() if reason else exc.message
+    return str(exc) or exc.__class__.__name__
 
 
 class EvidenceProcessingService:
@@ -115,7 +128,7 @@ class EvidenceProcessingService:
             extraction = await self.extraction.extract(processed, file.content_type, file.filename)
             await self._apply_extraction(management, media, extraction, processed_path)
         except Exception as exc:  # noqa: BLE001 - isolate a single failing image
-            await self.media_repo.mark_failed(media, error_message=str(exc)[:500])
+            await self.media_repo.mark_failed(media, error_message=_failure_reason(exc)[:500])
 
     async def _apply_extraction(
         self,

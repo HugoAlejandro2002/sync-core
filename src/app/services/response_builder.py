@@ -78,6 +78,7 @@ def build_evidence_response(media: MediaAsset) -> EvidenceResponse:
         else None,
         confidence_score=_to_float(media.confidence_score),
         extracted_text=media.extracted_text,
+        error_message=media.error_message,
     )
 
 
@@ -147,6 +148,7 @@ def build_alerts(management: Management) -> list[Alert]:
             level=str(a.get("level", "info")),
             message=str(a.get("message", "")),
             level_label=a.get("level_label"),
+            evidence_id=a.get("evidence_id"),
         )
         for a in alerts
     ]
