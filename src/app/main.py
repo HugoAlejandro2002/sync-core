@@ -4,10 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.controllers.health_controller import router as health_router
-from app.core.config import settings
+from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.core.logging import setup_logging
 from app.schemas.common import ApiResponse, ErrorDetail
+
+settings = get_settings()
 
 setup_logging()
 
