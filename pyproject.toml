@@ -1,0 +1,47 @@
+[project]
+name = "sync-core"
+version = "0.1.0"
+description = "Caja Inteligente Bolivia — Backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]",
+    "pydantic-settings",
+    "sqlalchemy",
+    "asyncmy",
+    "alembic",
+    "python-multipart",
+    "opencv-python-headless",
+    "pillow",
+    "google-genai",
+    "httpx",
+    "tenacity",
+    "structlog",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
