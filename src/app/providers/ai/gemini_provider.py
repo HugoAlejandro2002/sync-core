@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from app.core.exceptions import ExtractionError
 from app.schemas.extraction_schema import FinancialExtractionSchema
@@ -37,12 +36,17 @@ Rules:
 
 
 class GeminiFinancialExtractionProvider:
-    """Real Gemini Flash provider. Imports the SDK lazily so the fake path stays light."""
+    """Real Gemini Flash provider using Vertex AI API key."""
 
     def __init__(self, api_key: str, model: str) -> None:
-        from google import genai  # lazy import; only needed when a key is configured
+        from google import genai
+        from google.genai import types
 
-        self.client: Any = genai.Client(api_key=api_key)
+        self.client = genai.Client(
+            vertexai=True,
+            api_key=api_key,
+            http_options=types.HttpOptions(api_version="v1"),
+        )
         self.model = model
 
     async def extract_from_image(
@@ -53,27 +57,41 @@ class GeminiFinancialExtractionProvider:
     ) -> FinancialExtractionSchema:
         from google.genai import types
 
-        schema_json = json.dumps(FinancialExtractionSchema.model_json_schema(), ensure_ascii=False)
+        schema_json = json.dumps(
+            FinancialExtractionSchema.model_json_schema(),
+            ensure_ascii=False,
+        )
+
         prompt = (
-            f"{BASE_PROMPT}\n\nDevuelve únicamente JSON válido que cumpla este JSON Schema y toda el texto exclusivamente en español:\n"
+            f"{BASE_PROMPT}\n\n"
+            "Devuelve únicamente JSON válido que cumpla este JSON Schema "
+            "y todo el texto exclusivamente en español:\n"
             f"{schema_json}"
         )
-        contents = [prompt, types.Part.from_bytes(data=image_bytes, mime_type=mime_type)]
+
+        contents = [
+            prompt,
+            types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+        ]
+
         config = types.GenerateContentConfig(
             response_mime_type="application/json",
             temperature=0.0,
         )
 
         last_error: Exception | None = None
-        for _ in range(2):  # validate Gemini output; retry once on failure
+
+        for _ in range(2):
             try:
                 response = await self.client.aio.models.generate_content(
                     model=self.model,
                     contents=contents,
                     config=config,
                 )
+
                 return FinancialExtractionSchema.model_validate_json(response.text or "")
-            except Exception as exc:  # noqa: BLE001 - any SDK/parse error -> retry then fail
+ 
+            except Exception as exc:
                 last_error = exc
 
         raise ExtractionError(details={"reason": str(last_error)})
