@@ -1,6 +1,6 @@
 import structlog
 
-from app.core.config import settings
+from app.core.config import get_settings
 
 
 def setup_logging() -> None:
@@ -9,7 +9,7 @@ def setup_logging() -> None:
         structlog.stdlib.add_log_level,
     ]
 
-    if settings.APP_DEBUG:
+    if get_settings().APP_DEBUG:
         processors.append(structlog.dev.ConsoleRenderer())
     else:
         processors.append(structlog.processors.JSONRenderer())
